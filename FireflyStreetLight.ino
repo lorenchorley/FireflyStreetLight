@@ -4,7 +4,7 @@
 #define NANO
 //#define ATTINY
 
-#define DEBUG_TIMINGS
+//#define DEBUG_TIMINGS
 
 // Pins
 
@@ -16,7 +16,7 @@ int sensorIndicator = 1;
 
 #ifdef NANO
 int ledYellow = 10; // Digital output PWM
-int ledRed = 11; // Digital output PWM
+int ledRed = 9; // Digital output PWM, with register specific code
 int sensor1 = 7; // Digital input
 int sensor2 = 8; // Digital input
 int sensorIndicator = LED_BUILTIN;
@@ -41,8 +41,8 @@ int val2 = 0;                               // variable to store the sensor stat
 int previousVal1 = 0;
 int previousVal2 = 0;
 LinkedList<unsigned long> sensorEventTimestamps;
-const unsigned long sensorEventTimeout = 10000; // in milliseconds
-const int maxSensorEvents = 10;
+const unsigned long sensorEventTimeout = 20000; // in milliseconds
+const int maxSensorEvents = 20;
 float recentnessLimit = 0;
 
 int combinedSensorReading = 0;              //
@@ -66,14 +66,14 @@ bool OncePerSecondEvent = false;
 
 // Constants
 const unsigned long startupPeriod = 2;            // Time for the components to initialise before the state machine starts, in seconds
-const float hardMaxLuminosity = 1023.0;       // maximum luminosity value
+const float hardMaxLuminosity = 4095.0;       // maximum luminosity value
 const float dragCoefficient = 0.05;   // coefficient for the drag effect
 
 // Min/max of colour ranges
 const float minLuminosityYellow = 0;
-const float minLuminosityRed = 60;
+const float minLuminosityRed = 50;
 const float maxLuminosityYellow = hardMaxLuminosity;       
-const float maxLuminosityRedReal = 0.66 * hardMaxLuminosity; // after the oscillations have been taken into account
+const float maxLuminosityRedReal = 0.3 * hardMaxLuminosity; // after the oscillations have been taken into account
 const float maxOscillationHeightRed = (maxLuminosityRedReal - minLuminosityRed) / 2;
 const float maxLuminosityRed = maxOscillationHeightRed + minLuminosityRed;
 
@@ -102,8 +102,40 @@ State currentState = IDLE;
 bool firstInstantOfMotionDetection = false;
 bool sensorReportingMotion = false;
 
-void setup() {
+void FastPWMSetup() {
+  // Configure Timer 1 for Fast PWM mode
+  TCCR1A = (1 << WGM11) | (1 << COM1A1) | (1 << COM1B1); // Fast PWM, clear OC1A and OC1B on compare match
+  TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10); // Fast PWM, no prescaling
 
+  // Set the ICR1 value for a top value (for 12-bit resolution)
+  ICR1 = 4095; // Set TOP value for 12-bit resolution
+}
+
+void setPWMOnPin9(uint16_t value) {
+  // Ensure value is within 0-4095
+  if (value > 4095) {
+    value = 4095;
+  } else if (value < 0) {
+    value = 0;
+  }
+  
+  // Set the Output Compare Register for Timer 1
+  OCR1A = value; // Set the PWM value for pin 9
+}
+
+void setPWMOnPin10(uint16_t value) {
+  // Ensure value is within 0-4095
+  if (value > 4095) {
+    value = 4095;
+  } else if (value < 0) {
+    value = 0;
+  }
+  
+  // Set the Output Compare Register for Timer 1
+  OCR1B = value; // Set the PWM value for pin 10
+}
+
+void setup() {
 #ifdef DEBUG_TIMINGS
   accelerationDurationYellow = 6000;
   accelerationDurationRed = 4000;
@@ -114,20 +146,20 @@ void setup() {
   
   decreasingAccelerationValue = -10; 
 
-  minFrequency = 0.2;
+  minFrequency = 0.5;
   maxFrequency = 2;
 #else
   accelerationDurationYellow = 5000;
   accelerationDurationRed = 7000;
-  increasingAccelerationValueYellow = 2;
-  increasingAccelerationValueRed = 2.4;
+  increasingAccelerationValueYellow = 7;
+  increasingAccelerationValueRed = 3;
 
   holdDuration = 8000;
   
-  decreasingAccelerationValue = -3;
+  decreasingAccelerationValue = -12;
 
-  minFrequency = 0.2;
-  maxFrequency = 2;
+  minFrequency = 0.3;
+  maxFrequency = 1.5;
 #endif
 
   frequency = maxFrequency;
@@ -137,6 +169,8 @@ void setup() {
   pinMode(sensorIndicator, OUTPUT);   
   pinMode(sensor1, INPUT);    
   pinMode(sensor2, INPUT);  
+
+  FastPWMSetup();
 
   startupPeriodFinished = millis() + startupPeriod * 1000;
     
@@ -392,11 +426,15 @@ void loop() {
   float pulseOffset = CalculatePulseOffset(lerp((luminosityRed - minLuminosityRed) / (maxLuminosityRed - minLuminosityRed), 20, maxOscillationHeightRed), 10);
 
   // Final transformation into arduino units (0-255) before writing as PWN signal
-  int finalRed = (int)map(luminosityRed + pulseOffset, 0, hardMaxLuminosity, 0, 255);
-  int finalYellow = (int)map(luminosityYellow, 0, hardMaxLuminosity, 0, 255);
-
-  analogWrite(ledYellow, finalYellow);
-  analogWrite(ledRed, finalRed);
+  //int finalRed = (int)map(luminosityRed + pulseOffset, 0, hardMaxLuminosity, 0, 255);
+  //int finalYellow = (int)map(luminosityYellow, 0, hardMaxLuminosity, 0, 255);
+  uint16_t finalRed = (uint16_t)map(luminosityRed + pulseOffset, 0, hardMaxLuminosity, 0, 4095);
+  uint16_t finalYellow = (uint16_t)map(luminosityYellow, 0, hardMaxLuminosity, 0, 4095);
+  
+  //analogWrite(ledYellow, finalYellow);
+  //analogWrite(ledRed, finalRed);
+  setPWMOnPin9(finalRed);
+  setPWMOnPin10(finalYellow);
 
   if (true) {
 #ifndef ATTINY
