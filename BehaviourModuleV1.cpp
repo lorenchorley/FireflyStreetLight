@@ -1,18 +1,10 @@
 #include "Arduino.h"
 #include "BehaviourModuleV1.h"
-#include "SensorModule.h"
 #include "Functions.h"
 #include "LinkedList.h"
 
-// TODO need to be moved
-//int sensor1 = 7; // Digital input
-//int sensor2 = 8; // Digital input
-//int sensorIndicator = LED_BUILTIN;
-
-BehaviourModuleV1::BehaviourModuleV1(SensorModule& sensors, Functions& f, int sensorIndicator)
+BehaviourModuleV1::BehaviourModuleV1(Functions& f)
 {
-  _sensors = sensors;
-  _sensorIndicator = sensorIndicator; // TODO Change to a method on Functions class
   _f = f;
 }
 
@@ -20,16 +12,16 @@ BehaviourModuleV1::BehaviourModuleV1(SensorModule& sensors, Functions& f, int se
 const float twopi = 2 * 3.141592;
 
 // Sensor readings
-int val1 = 0;                               // variable to store the sensor status (value)
-int val2 = 0;                               // variable to store the sensor status (value)
-int previousVal1 = 0;
-int previousVal2 = 0;
+//int val1 = 0;                               // variable to store the sensor status (value)
+//int val2 = 0;                               // variable to store the sensor status (value)
+bool previousVal1 = false;
+bool previousVal2 = false;
 LinkedList<unsigned long> sensorEventTimestamps;
 const unsigned long sensorEventTimeout = 20000; // in milliseconds
 const int maxSensorEvents = 20;
 float recentnessLimit = 0;
 
-int combinedSensorReading = 0;              //
+//int combinedSensorReading = 0;              //
 float luminosityYellow = 0;                       // current luminosity level
 float luminosityRed = 0;                  // current luminosity level of the pilot light
 float rateOfChangeRed = 0;                     // current rate of change of luminosity
@@ -39,10 +31,6 @@ float accelerationYellow = 0;                     // acceleration for the rate o
 unsigned long motionDetectedTime = 0;       // time when motion was detected
 unsigned long stoppedAcceleratingTimeRed = 0;  // time when acceleration was stopped
 unsigned long stoppedAcceleratingTimeYellow = 0;  // time when acceleration was stopped
-//unsigned long currentTime;              // current time
-//unsigned long previousTime;
-//float deltaT;
-float i = 0;
 bool finishedAcceleratingRed = false;
 bool finishedAcceleratingYellow = false;
 //unsigned long previousWholeSecondsFigure = 0;
@@ -105,26 +93,26 @@ float CalculateDrag(float value, float rateOfChange, float acceleration, float m
   return drag;
 }
 
-void BehaviourModuleV1::ReadSensorValues(unsigned long currentTime) {
-  val1 = _sensors.ReadFirst();   // read sensor value
-  val2 = _sensors.ReadSecond();   // read sensor value
+bool BehaviourModuleV1::ReadSensorValues(unsigned long currentTime) {
+  bool val1 = _f.ReadFirstSensor();   // read sensor value
+  bool val2 = _f.ReadSecondSensor();   // read sensor value
 
-  if (val1 == HIGH && previousVal1 == LOW) {
+  if (val1 == true && previousVal1 == false) {
     // New sensor event of sensor 1
-    previousVal1 = HIGH;
+    previousVal1 = true;
     sensorEventTimestamps.add(currentTime);
-  } else if (val1 == LOW && previousVal1 == HIGH) {
+  } else if (val1 == false && previousVal1 == true) {
     // Sensor event times out
-    previousVal1 = LOW;
+    previousVal1 = false;
   }
   
-  if (val2 == HIGH && previousVal2 == LOW) {
+  if (val2 == true && previousVal2 == false) {
     // New sensor event of sensor 2
-    previousVal2 = HIGH;
+    previousVal2 = true;
     sensorEventTimestamps.add(currentTime);
-  } else if (val2 == LOW && previousVal2 == HIGH) {
+  } else if (val2 == false && previousVal2 == true) {
     // Sensor event times out
-    previousVal2 = LOW;
+    previousVal2 = false;
   }
 
   // Delete just one event if there are more than the max
@@ -138,13 +126,13 @@ void BehaviourModuleV1::ReadSensorValues(unsigned long currentTime) {
     sensorEventTimestamps.remove(0);
   }
 
-  combinedSensorReading = val1 || val2;
+  bool combinedSensorReading = val1 || val2;
 
   if (firstInstantOfMotionDetection) {
     firstInstantOfMotionDetection = false;
   }
 
-  if (combinedSensorReading == HIGH) {
+  if (combinedSensorReading == true) {
     if (!sensorReportingMotion) {                   // if motion has not yet been detected, then this is the start of a detection cycle
       sensorReportingMotion = true;                 // set motion detected flag, this allows finer control over the motion detection period rather than leaving it to the sensor
       firstInstantOfMotionDetection = true;
@@ -156,7 +144,9 @@ void BehaviourModuleV1::ReadSensorValues(unsigned long currentTime) {
     sensorReportingMotion = false;                  // End of a motion detection cycle
   } 
 
-  digitalWrite(_sensorIndicator, sensorReportingMotion ? HIGH : LOW);
+  _f.SetSensorIndicatorPin(sensorReportingMotion);
+
+  return combinedSensorReading;
 }
 
 void BehaviourModuleV1::RecalculatePulseFrequency(unsigned long currentTime, float deltaT) {
@@ -243,7 +233,7 @@ void BehaviourModuleV1::SetInitialValues() {
 void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT) 
 {
   _f.Update(currentTime);
-  ReadSensorValues(currentTime);
+  bool sensorReading = ReadSensorValues(currentTime);
   RecalculatePulseFrequency(currentTime, deltaT);
 
   switch (currentState) {
@@ -264,7 +254,7 @@ void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT)
       accelerationRed = increasingAccelerationValueRed;
       accelerationYellow = increasingAccelerationValueYellow;
 
-      if (combinedSensorReading == HIGH) {
+      if (sensorReading == true) {
         break;
       }
       

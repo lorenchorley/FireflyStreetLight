@@ -1,4 +1,3 @@
-#include "SensorModule.h"
 #include "Functions.h"
 #include "BehaviourModuleV1.h"
 
@@ -13,7 +12,7 @@
 #ifdef UNO
 int led = 10;
 int sensor = 12;
-int sensorIndicator = 1;
+int sensorIndicatorPin = 1;
 #endif
 
 #ifdef NANO
@@ -21,7 +20,7 @@ int ledYellow = 10; // Digital output PWM
 int ledRed = 9; // Digital output PWM, with register specific code
 int sensor1 = 7; // Digital input
 int sensor2 = 8; // Digital input
-int sensorIndicator = LED_BUILTIN;
+int sensorIndicatorPin = LED_BUILTIN;
 #endif
 
 #ifdef ATTINY
@@ -29,7 +28,7 @@ int ledYellow = 0; // Digital output PWM
 int ledRed = 1; // Digital output PWM
 int sensor1 = 2; // Digital input
 int sensor2 = 3; // Digital input
-int sensorIndicator = 4; // Digital/analog output 
+int sensorIndicatorPin = 4; // Digital/analog output 
 #endif
 
 void FastPWMSetup() {
@@ -41,9 +40,8 @@ void FastPWMSetup() {
   ICR1 = 4095; // Set TOP value for 12-bit resolution
 }
 
-SensorModule sensors(sensor1, sensor2);
-Functions f;
-BehaviourModuleV1 Simulation(sensors, f, sensorIndicator);
+Functions f(sensor1, sensor2, sensorIndicatorPin);
+BehaviourModuleV1 Simulation(f);
 
 float deltaT;
 unsigned long currentTime;
@@ -63,7 +61,7 @@ void setup() {
 
   pinMode(ledYellow, OUTPUT);      
   pinMode(ledRed, OUTPUT);      
-  pinMode(sensorIndicator, OUTPUT);   
+  pinMode(sensorIndicatorPin, OUTPUT);   
   pinMode(sensor1, INPUT);    
   pinMode(sensor2, INPUT);  
 
@@ -74,7 +72,6 @@ void setup() {
 #endif        
 
   startupPeriodFinished = millis() + startupPeriod * 1000;
-  
 }
 
 void loop() {

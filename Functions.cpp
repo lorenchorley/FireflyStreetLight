@@ -1,8 +1,11 @@
 #include "Arduino.h"
 #include "Functions.h"
 
-Functions::Functions()
+Functions::Functions(int sensorPin1, int sensorPin2, int sensorIndicatorPin)
 {
+  _sensorPin1 = sensorPin1;
+  _sensorPin2 = sensorPin2;
+  _sensorIndicatorPin = sensorIndicatorPin;
 }
 
 bool OncePerSecondEvent = false;
@@ -40,4 +43,16 @@ void Functions::SetPWMOnPin10(uint16_t value) {
   
   // Set the Output Compare Register for Timer 1
   OCR1B = value; // Set the PWM value for pin 10
+}
+
+bool Functions::ReadFirstSensor() {
+  return digitalRead(_sensorPin1) == HIGH ? true : false;
+}
+
+bool Functions::ReadSecondSensor() {
+  return digitalRead(_sensorPin2) == HIGH ? true : false;
+}
+
+void Functions::SetSensorIndicatorPin(bool active) {
+  digitalWrite(_sensorIndicatorPin, active ? HIGH : LOW);
 }
