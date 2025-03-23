@@ -33,8 +33,8 @@ if (dev2prod)
     if (!string.Equals(sourceFile.Extension, ".cs"))
         throw new ArgumentException("Source file is not of type .cs");
 
-    if (!string.Equals(targetFile.Extension, ".ino"))
-        throw new ArgumentException("Source file is not of type .ino");
+    if (!string.Equals(targetFile.Extension, ".cpp"))
+        throw new ArgumentException("Source file is not of type .cpp");
 
     transpiler.UpdateProductionClass(sourceFile, targetFile);
 
@@ -45,8 +45,8 @@ if (dev2prod)
 
 if (prod2dev)
 {
-    if (!string.Equals(sourceFile.Extension, ".ino"))
-        throw new ArgumentException("Source file is not of type .ino");
+    if (!string.Equals(sourceFile.Extension, ".cpp"))
+        throw new ArgumentException("Source file is not of type .cpp");
 
     if (!string.Equals(targetFile.Extension, ".cs"))
         throw new ArgumentException("Source file is not of type .cs");

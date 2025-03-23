@@ -21,7 +21,6 @@ const unsigned long sensorEventTimeout = 20000; // in milliseconds
 const int maxSensorEvents = 20;
 float recentnessLimit = 0;
 
-//int combinedSensorReading = 0;              //
 float luminosityYellow = 0;                       // current luminosity level
 float luminosityRed = 0;                  // current luminosity level of the pilot light
 float rateOfChangeRed = 0;                     // current rate of change of luminosity
@@ -33,8 +32,6 @@ unsigned long stoppedAcceleratingTimeRed = 0;  // time when acceleration was sto
 unsigned long stoppedAcceleratingTimeYellow = 0;  // time when acceleration was stopped
 bool finishedAcceleratingRed = false;
 bool finishedAcceleratingYellow = false;
-//unsigned long previousWholeSecondsFigure = 0;
-//bool OncePerSecondEvent = false;
 
 // Constants
 const float hardMaxLuminosity = 4095.0;       // maximum luminosity value
@@ -73,9 +70,6 @@ State currentState = IDLE;
 bool firstInstantOfMotionDetection = false;
 bool sensorReportingMotion = false;
 float phase = 0;
-
-
-
 
 
 float CalculateDrag(float value, float rateOfChange, float acceleration, float maxValue) {
@@ -196,23 +190,20 @@ float lerp(float x, float a, float b)
 }
 
 
-
-
-
 void BehaviourModuleV1::SetInitialValues() {
-#ifdef DEBUG_TIMINGS
-  accelerationDurationYellow = 6000;
-  accelerationDurationRed = 4000;
-  increasingAccelerationValueYellow = 10;
-  increasingAccelerationValueRed = 15;
-
-  holdDuration = 1000;
-  
-  decreasingAccelerationValue = -10; 
-
-  minFrequency = 0.5;
-  maxFrequency = 2;
-#else
+//#ifdef DEBUG_TIMINGS
+//  accelerationDurationYellow = 6000;
+//  accelerationDurationRed = 4000;
+//  increasingAccelerationValueYellow = 10;
+//  increasingAccelerationValueRed = 15;
+//
+//  holdDuration = 1000;
+//  
+//  decreasingAccelerationValue = -10; 
+//
+//  minFrequency = 0.5;
+//  maxFrequency = 2;
+//#else
   accelerationDurationYellow = 5000;
   accelerationDurationRed = 7000;
   increasingAccelerationValueYellow = 7;
@@ -224,10 +215,9 @@ void BehaviourModuleV1::SetInitialValues() {
 
   minFrequency = 0.3;
   maxFrequency = 1.5;
-#endif
+//#endif
 
   frequency = maxFrequency;
-  
 }
 
 void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT) 

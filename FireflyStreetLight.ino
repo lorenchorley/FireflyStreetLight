@@ -45,14 +45,12 @@ BehaviourModuleV1 Simulation(f);
 
 float deltaT;
 unsigned long currentTime;
-//unsigned long previousTime;
 unsigned long startupPeriodFinished = 0;    // The time at the state machine can start
 const unsigned long startupPeriod = 2;            // Time for the components to initialise before the state machine starts, in seconds
 
 void ReadTime() {
   unsigned long now = millis();
   deltaT = (now - currentTime)/1000.0;
-  //previousTime = currentTime;
   currentTime = now;
 }
 
