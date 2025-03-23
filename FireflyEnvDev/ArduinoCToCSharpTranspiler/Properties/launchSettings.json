@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "UpdateDevelopmentClass": {
+      "commandName": "Project",
+      "commandLineArgs": "-prod2dev \"D:\\Documents\\Arduino\\FireflyStreetLight\\BehaviourModuleV1.ino\" \"D:\\Documents\\Arduino\\FireflyStreetLight\\FireflyEnvDev\\FireflyEnvDev\\Simulators\\FromArduino\\GeneratedDevelopmentClass.cs\""
+    },
+    "UpdateProductionClass": {
+      "commandName": "Project",
+      "commandLineArgs": "-dev2prod .\\Simulators\\V1.cs ..\\GeneratedProductionClass.ino"
+    }
+  }
+}
