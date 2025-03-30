@@ -31,7 +31,7 @@ internal class V1 : ISimulator
     public GraphDataOutput GraphDataOutput { get; private set; }
     public LEDOutput YellowLEDOutput { get; private set; }
     public LEDOutput RedLEDOutput { get; private set; }
-    public SerialOutput SerialOutput { get; private set; }
+    public Serial SerialOutput { get; private set; }
 
     public RollOverEventList RollOverEventList { get; private set; }
     public Functions Functions { get; private set; }    
@@ -45,7 +45,7 @@ internal class V1 : ISimulator
         GraphDataOutput = new GraphDataOutput();
         YellowLEDOutput = new LEDOutput();
         RedLEDOutput = new LEDOutput();
-        SerialOutput = new SerialOutput();
+        SerialOutput = new Serial();
 
         RollOverEventList = new RollOverEventList();
         Functions = new Functions(this);
@@ -67,7 +67,7 @@ internal class V1 : ISimulator
         bool seesMovement = MovementSensorInput1.Read(TimeElapsed) == SensorReading.HIGH;
         if (seesMovement)
         {
-            SerialOutput.WriteLine($"Saw movement at {TimeElapsed}");
+            SerialOutput.println($"Saw movement at {TimeElapsed}");
         }
 
         GraphDataOutput.WriteTimeSeriesDataPoint(TimeElapsed, 

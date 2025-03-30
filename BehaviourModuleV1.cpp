@@ -46,9 +46,9 @@ const float maxOscillationHeightRed = (maxLuminosityRedReal - minLuminosityRed) 
 const float maxLuminosityRed = maxOscillationHeightRed + minLuminosityRed;
 
 // Curve timings
-int holdDuration;        // duration to hold the light at full brightness after motion detected
-int accelerationDurationYellow; // duration to apply acceleration in milliseconds
-int accelerationDurationRed;
+unsigned long holdDuration;        // duration to hold the light at full brightness after motion detected
+unsigned long accelerationDurationYellow; // duration to apply acceleration in milliseconds
+unsigned long accelerationDurationRed;
 float increasingAccelerationValueYellow;  // base acceleration value (adjust as needed)
 float increasingAccelerationValueRed;  // base acceleration value (adjust as needed)
 float decreasingAccelerationValue;  // base acceleration value (adjust as needed)
@@ -147,7 +147,7 @@ void BehaviourModuleV1::RecalculatePulseFrequency(unsigned long currentTime, flo
   
   // Every second recalculate the frequency according the recorded sensor events
   if (_f.IsOncePerSecondEvent()) {
-    long count = 0;
+    unsigned long count = 0;
     for (int i = 0; i < sensorEventTimestamps.size(); i++){
       unsigned long timestamp = sensorEventTimestamps.get(i);
       unsigned long age = currentTime - timestamp;
@@ -330,7 +330,7 @@ void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT)
   luminosityYellow = constrain(luminosityYellow, minLuminosityYellow, maxLuminosityYellow);
 
   // Apply fluctuations and other post-physical and/or non persisting modification calculations
-  float pulseOffset = CalculatePulseOffset(lerp((luminosityRed - minLuminosityRed) / (maxLuminosityRed - minLuminosityRed), 20, maxOscillationHeightRed), 10);
+  float pulseOffset = CalculatePulseOffset((int)lerp((luminosityRed - minLuminosityRed) / (maxLuminosityRed - minLuminosityRed), 20, maxOscillationHeightRed), 10);
 
   // Final transformation into arduino units (0-255) before writing as PWN signal
   //int finalRed = (int)map(luminosityRed + pulseOffset, 0, hardMaxLuminosity, 0, 255);
@@ -368,7 +368,7 @@ void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT)
     
     if (false) {
       Serial.print("State:");
-      Serial.print(-currentState * 10);
+      Serial.print(-((int)currentState) * 10);
       Serial.print(",");
     }
   

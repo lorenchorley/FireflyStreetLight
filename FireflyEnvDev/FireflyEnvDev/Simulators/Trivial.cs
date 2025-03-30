@@ -16,7 +16,7 @@ internal class Trivial : ISimulator
     public GraphDataOutput GraphDataOutput { get; private set; }
     public LEDOutput YellowLEDOutput { get; private set; }
     public LEDOutput RedLEDOutput { get; private set; }
-    public SerialOutput SerialOutput { get; private set; }
+    public Serial SerialOutput { get; private set; }
 
     public RollOverEventList RollOverEventList { get; private set; }
 
@@ -29,7 +29,7 @@ internal class Trivial : ISimulator
         GraphDataOutput = new GraphDataOutput();
         YellowLEDOutput = new LEDOutput();
         RedLEDOutput = new LEDOutput();
-        SerialOutput = new SerialOutput();
+        SerialOutput = new Serial();
 
         RollOverEventList = new RollOverEventList();
         TickDuration = tickDuration;
@@ -50,7 +50,7 @@ internal class Trivial : ISimulator
             MovementSensorInput2.Read(TimeElapsed) == SensorReading.HIGH;
         if (seesMovement)
         {
-            SerialOutput.WriteLine($"Saw movement at {TimeElapsed}");
+            SerialOutput.println($"Saw movement at {TimeElapsed}");
         }
 
         GraphDataOutput.WriteTimeSeriesDataPoint(TimeElapsed, 

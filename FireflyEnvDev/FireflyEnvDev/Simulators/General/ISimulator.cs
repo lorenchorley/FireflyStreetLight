@@ -10,7 +10,7 @@ internal interface ISimulator
     GraphDataOutput GraphDataOutput { get; }
     LEDOutput YellowLEDOutput { get; }
     LEDOutput RedLEDOutput { get; }
-    SerialOutput SerialOutput { get; }
+    Serial SerialOutput { get; }
     TimeSpan TimeElapsed { get; set; }
     TimeSpan TickDuration { get; }
     void Start();
