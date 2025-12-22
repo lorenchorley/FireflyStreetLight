@@ -1,4 +1,6 @@
 ﻿using FireflyEnvDev.Outputs;
+using GraphGenerators;
+using Microsoft.FSharp.Collections;
 using Plotly.NET;
 using Plotly.NET.LayoutObjects;
 using System.Data;
@@ -9,12 +11,12 @@ public class PlotGenerator
 {
     internal IEnumerable<GenericChart> Generate(GraphDataOutput data)
     {
-        var timeData = data.TimeData.Select(DateTime.MinValue.Add).ToList();
+        //var timeData = data.TimeData.Select(DateTime.MinValue.Add).ToList();
 
         var charts =
             data.GetTimeSeriesData()
-                .Select(x => Chart2D.Chart.Line<DateTime, double, string>(timeData, x.Item2, Name: x.Item1));
+                .Select(x => Chart2D.Chart.Line<DateTime, double, string>(x.Item2, x.Item3, Name: x.Item1));
 
-        return charts;
+        return [ChartGenerator.ArrangeInColumn(charts)];
     }
 }

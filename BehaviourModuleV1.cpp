@@ -159,9 +159,15 @@ void BehaviourModuleV1::RecalculatePulseFrequency(unsigned long currentTime, flo
     if (count > recentnessLimit) {
       recentnessLimit = count;
     }
-    
-    targetFrequency = map(recentnessLimit - count, 0, recentnessLimit, maxFrequency, minFrequency);
-    targetFrequency = constrain(targetFrequency, minFrequency, maxFrequency);
+    if (recentnessLimit == 0)
+    {
+      targetFrequency = minFrequency;
+    }
+    else
+    {
+      targetFrequency = map(recentnessLimit - count, 0, recentnessLimit, maxFrequency, minFrequency);
+      targetFrequency = constrain(targetFrequency, minFrequency, maxFrequency);
+    }
   }
 
   //frequency = lerp(deltaT / 2, frequency, targetFrequency);
@@ -345,6 +351,12 @@ void BehaviourModuleV1::Tick(unsigned long currentTime, float deltaT)
 
   if (true) {
 #ifndef ATTINY
+    if (true) {
+      Serial.print("Time:");
+      Serial.print(currentTime);
+      Serial.print(",");
+    }
+
     if (false) {
       Serial.print("Rate_of_Change_Yellow:");
       Serial.print(rateOfChangeYellow);

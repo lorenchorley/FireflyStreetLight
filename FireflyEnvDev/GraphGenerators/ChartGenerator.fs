@@ -14,3 +14,4 @@ module ChartGenerator =
     let ArrangeInColumn (charts : GenericChart list) =
         charts
         |> Chart.Grid(charts.Length, 1)
+        |> Chart.withSize (1400, 400)

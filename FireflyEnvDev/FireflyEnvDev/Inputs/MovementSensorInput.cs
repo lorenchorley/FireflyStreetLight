@@ -1,21 +1,26 @@
-﻿
-using FireflyEnvDev.Simulators;
+﻿using System.Diagnostics;
 
 namespace FireflyEnvDev.Inputs;
 
 internal class MovementSensorInput
 {
-    bool isDone = false;
+    private Queue<TimeSpan> _timeSpans = new();
 
-    internal SensorReading Read(TimeSpan timeElapsed)
+    internal bool Read(TimeSpan timeElapsed)
     {
-        return (!isDone && timeElapsed.TotalSeconds > 1) 
-            ? SensorReading.HIGH 
-            : SensorReading.LOW;
+        bool shouldPop = _timeSpans.Count > 0 && timeElapsed > _timeSpans.Peek();
+
+        if (shouldPop)
+        {
+            _timeSpans.Dequeue();
+            Debug.WriteLine($"Sensor read event after {timeElapsed.TotalMilliseconds}ms");
+        }
+
+        return shouldPop;
     }
 
     internal void SetEvents(params TimeSpan[] timeSpans)
     {
-        throw new NotImplementedException();
+        _timeSpans = new(timeSpans.Order());
     }
 }

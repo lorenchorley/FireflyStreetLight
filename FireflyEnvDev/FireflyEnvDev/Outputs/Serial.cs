@@ -4,20 +4,35 @@ namespace FireflyEnvDev.Outputs;
 
 internal class Serial
 {
-    private StringBuilder sb { get; } = new ();
+    private StringBuilder _sb { get; } = new ();
+    private List<string> _lines = new();
 
     public void print(object s)
     {
-        sb.Append(s.ToString());
+        _sb.Append(s.ToString());
     }
     
     public void println(object s)
     {
-        sb.AppendLine(s.ToString());
+        _sb.Append(s.ToString());
+        _lines.Add(_sb.ToString());
+        _sb.Clear();
+    }
+    
+    public void print(string s)
+    {
+        _sb.Append(s);
+    }
+    
+    public void println(string s)
+    {
+        _sb.Append(s);
+        _lines.Add(_sb.ToString());
+        _sb.Clear();
     }
 
-    public string GetAllOutput()
+    public List<string> GetAllOutput()
     {
-        return sb.ToString();
+        return _lines;
     }
 }

@@ -26,10 +26,10 @@ internal class Trivial : ISimulator
         
         MovementSensorInput1 = new MovementSensorInput();
         MovementSensorInput2 = new MovementSensorInput();
-        GraphDataOutput = new GraphDataOutput();
         YellowLEDOutput = new LEDOutput();
         RedLEDOutput = new LEDOutput();
         SerialOutput = new Serial();
+        GraphDataOutput = new GraphDataOutput(SerialOutput);
 
         RollOverEventList = new RollOverEventList();
         TickDuration = tickDuration;
@@ -38,16 +38,20 @@ internal class Trivial : ISimulator
     public void Start()
     {
         GraphDataOutput.RegisterTimeSeriesDataNames(
-            "S1",
-            "S2"
+            "Sensor",
+            "targetFrequency",
+            "Frequency",
+            "Yellow",
+            "Red"
         );
     }
 
     public void Loop()
     {
         bool seesMovement = 
-            MovementSensorInput1.Read(TimeElapsed) == SensorReading.HIGH ||
-            MovementSensorInput2.Read(TimeElapsed) == SensorReading.HIGH;
+            MovementSensorInput1.Read(TimeElapsed) ||
+            MovementSensorInput2.Read(TimeElapsed);
+
         if (seesMovement)
         {
             SerialOutput.println($"Saw movement at {TimeElapsed}");

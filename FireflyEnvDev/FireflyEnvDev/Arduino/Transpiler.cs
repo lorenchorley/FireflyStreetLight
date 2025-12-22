@@ -39,7 +39,8 @@ internal class Transpiler
                      .Select(TransformDataTypes)
                      .Select(TransformDataLiterals)
                      .Select(ReplaceStateEnumValue)
-                     .Select(RemoveClassNameFromMethodSignatures(productionClassName));
+                     .Select(RemoveClassNameFromMethodSignatures(productionClassName))
+                     .Select(TransformSerialPrintOfDataToPlot);
 
         lines = lines.Select(l => $"\t{l}");
 
@@ -92,6 +93,12 @@ internal class Transpiler
         return line;
     };
 
+    private string TransformSerialPrintOfDataToPlot(string line)
+    {
+        line = Regex.Replace(line, @"Serial\.print\((?="" "")", m => $"State.{m.Groups[0].Value}");
+
+        return line;
+    }
 
 
 

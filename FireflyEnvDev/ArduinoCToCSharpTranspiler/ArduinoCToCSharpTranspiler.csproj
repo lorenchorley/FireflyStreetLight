@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FSharp.Core" Version="9.0.202" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FireflyEnvDev\FireflyEnvDev.csproj" />
   </ItemGroup>
 

@@ -22,46 +22,64 @@ internal class Functions
 
     public float map(float x, float in_min, float in_max, float out_min, float out_max)
     {
-        return 0;
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
     
-    public float constrain(float x, float in_min, float in_max)
+    public float constrain(float x, float min, float max)
     {
-        return 0;
+        if (x < min)
+        {
+            return min;
+        }
+
+        if (x > max)
+        {
+            return max;
+        }
+
+        return x;
     }
 
     public float sin(float x)
     {
-        return 0;
+        return MathF.Sin(x);
     }
 
     public float cos(float x)
     {
-        return 0;
+        return MathF.Cos(x);
     }
     #endregion
 
     #region
     public bool ReadFirstSensor()
     {
-        return _simulator.MovementSensorInput1.Read(_simulator.TimeElapsed) == SensorReading.HIGH;
+        return _simulator.MovementSensorInput1.Read(_simulator.TimeElapsed);
     }
 
     public bool ReadSecondSensor()
     {
-        return _simulator.MovementSensorInput1.Read(_simulator.TimeElapsed) == SensorReading.HIGH;
+        return _simulator.MovementSensorInput1.Read(_simulator.TimeElapsed);
     }
 
-    public void SetSensorIndicatorPin(bool sensorReportingMotion)
-    {
-    }
+    private TimeSpan lastEvent = TimeSpan.Zero;
 
     public bool IsOncePerSecondEvent()
     {
+        if (_simulator.TimeElapsed - lastEvent >= TimeSpan.FromSeconds(1))
+        {
+            lastEvent += TimeSpan.FromSeconds(1);
+            return true;
+        }
+        
         return false;
     }
 
     public void Update(ulong currentTime)
+    {
+    }
+
+    public void SetSensorIndicatorPin(bool sensorReportingMotion)
     {
     }
 
